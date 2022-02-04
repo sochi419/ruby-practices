@@ -1,18 +1,18 @@
 require 'date'
 require 'optparse'
 
-def calender(year,mon)
+def calender(year, mon)
 
   # 月と年を、中央に表示
   puts "#{mon}月 #{year}".center(20)
   puts "日 月 火 水 木 金 土"
 
   # 月の初日の曜日を数字(0~6)で表す変数を定義
-  firstday = Date.new(year,mon,1).wday
+  firstday = Date.new(year, mon, 1).wday
   # 月の末日を表す変数を定義
-  lastday = Date.new(year,mon,-1).day
+  lastday = Date.new(year, mon, -1).day
   # 月の初日の配置を、空欄を設けて調整するための変数を定義
-  blank = "   "*firstday
+  blank = "   " * firstday
 
   print blank
   count = 1
@@ -26,7 +26,7 @@ def calender(year,mon)
     end
     # 土曜日で改行するif文を記載
     new_line = firstday + count
-    if new_line %7 == 0
+    if new_line % 7 == 0
       puts "\n"
     end
     count = count + 1
@@ -39,4 +39,4 @@ options = ARGV.getopts("", "y:#{Date.today.year}", "m:#{Date.today.month}")
 year = options["y"].to_i
 mon = options["m"].to_i
 
-calender(year,mon)
+calender(year, mon)
