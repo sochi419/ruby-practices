@@ -12,35 +12,27 @@ scores.each do |s|
   end
 end
 
-frames = []
-shots.each_slice(2) do |s|
-  frames << s
-end
+frames = shots.each_slice(2).to_a
 
 point = 0
-i = 0
 
 # 第8フレームまでの得点を計算する
-frames.each do |frame|
-  # 以下のif文で、ストライクの場合の計算式を定義
-  strike = if frames[i + 1][0] == 10 # 現在のフレームがストライク且つ、次フレームもストライクの場合
-             10 + frames[i + 1][0] + frames[i + 2][0] # 10点 + 次フレームの1投目(ストライク)の得点 + 次の次のフレームの1投目の得点
-           else
-             10 + frames[i + 1][0] + frames[i + 1][1] # 10点 + 次フレームの1投目 + 次フレームの2投目
-           end
-  # spareの場合の計算式を定義
-  spare = 10 + frames[i + 1][0] # 10点 + 次フレームの1投目の得点
-
+frames.each_with_index do |frame, i|
+  frame_point = frame.sum
   # 以下のif文でstrike,spare,その他の場合の得点
   point += if frame[0] == 10 # strikeの場合
-             strike
-           elsif frame.sum == 10 # spareの場合
-             spare
+             if frames[i + 1][0] == 10 # 現在のフレームがストライク且つ、次フレームもストライクの場合
+               10 + frames[i + 1][0] + frames[i + 2][0] # 10点 + 次フレームの1投目(ストライク)の得点 + 次の次のフレームの1投目の得点
+             else
+               10 + frames[i + 1][0] + frames[i + 1][1] # 10点 + 次フレームの1投目 + 次フレームの2投目
+             end
+           elsif frame_point == 10 # spareの場合
+             10 + frames[i + 1][0]
            else
-             frame.sum # strikeでもspareでもない場合
+             frame_point # strikeでもspareでもない場合
            end
-  i += 1
-  break if i == 8 # 8投目の得点計算が完了したら、breakする。
+
+  break if i == 7 # 8投目の得点計算が完了したら、breakする。
 end
 
 # 第9フレームの得点を計算する
