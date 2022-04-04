@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
+require 'optparse'
+
 class Ls
   COLUMN = 3
   def initialize
-    @directories = Dir.glob('*')
+    opt = ARGV.getopts('a')
+    @directories = if opt['a']
+                     Dir.glob('*', File::FNM_DOTMATCH)
+                   else
+                     Dir.glob('*')
+                   end
   end
 
   def divide_directories
@@ -23,9 +30,11 @@ class Ls
     sorted_directories = divide_directories.transpose
     max_length = @directories.max_by(&:length).length
     sorted_directories.each do |x|
-      x.delete(nil)
-      x.map { |n| n << (' ' * (max_length - n.length)).to_s }
-      puts x.join(' ').to_s
+      x.each do |y|
+        print "%-#{max_length + 1}s" % y
+      end
+      # 改行のためputs
+      puts
     end
   end
 end
