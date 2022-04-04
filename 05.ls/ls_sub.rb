@@ -16,7 +16,7 @@ class Ls
         divide_directories.last << nil
       end
     end
-    return divide_directories
+    divide_directories
   end
 
   def sort_directories

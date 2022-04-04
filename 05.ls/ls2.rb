@@ -6,11 +6,11 @@ class Ls
   COLUMN = 3
   def initialize
     opt = ARGV.getopts('a')
-    if opt['a']
-      @directories = Dir.glob('*', File::FNM_DOTMATCH) 
-    else 
-      @directories = Dir.glob('*')
-    end
+    @directories = if opt['a']
+                     Dir.glob('*', File::FNM_DOTMATCH)
+                   else
+                     Dir.glob('*')
+                   end
   end
 
   def divide_directories
@@ -31,10 +31,10 @@ class Ls
     max_length = @directories.max_by(&:length).length
     sorted_directories.each do |x|
       x.each do |y|
-        print "%-#{max_length + 1}s"%( y )
+        print "%-#{max_length + 1}s" % y
       end
       # 改行のためputs
-      puts 
+      puts
     end
   end
 end
