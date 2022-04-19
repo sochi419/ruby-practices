@@ -5,9 +5,11 @@ require 'optparse'
 class Ls
   COLUMN = 3
   def initialize
-    opt = ARGV.getopts('a')
+    opt = ARGV.getopts('a', 'r')
     @directories = if opt['a']
                      Dir.glob('*', File::FNM_DOTMATCH)
+                   elsif opt['r']
+                     Dir.glob('*').reverse
                    else
                      Dir.glob('*')
                    end
@@ -33,7 +35,6 @@ class Ls
       x.each do |y|
         print format("%-#{max_length + 1}s", y)
       end
-      # 改行のためputs
       puts
     end
   end
