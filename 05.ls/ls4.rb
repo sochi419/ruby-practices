@@ -40,25 +40,25 @@ class Ls
     end
   end
 
-  def option_l
+  def run_option_l
     @file_details = []
     @total = []
 
     @directories.each do |file|
-      file_block_total(file)
-      file_type(file)
-      file_permission(file)
-      file_hardlink(file)
-      file_user(file)
-      file_group(file)
-      file_size(file)
-      file_time(file)
+      get_total(file)
+      get_type(file)
+      get_permission(file)
+      get_hardlink(file)
+      get_user(file)
+      get_group(file)
+      get_size(file)
+      get_time(file)
 
-      file_detail = [@type, @permission_integer, @hardlink, @user, @group, @filesize, @timestamp, file]
+      file_detail = [@type, @permission_rwx, @hardlink, @user, @group, @filesize, @timestamp, file]
       @file_details << file_detail
     end
 
-    space_adjustment
+    adjust_space
 
     puts "total #{@total.sum}"
 
@@ -67,72 +67,60 @@ class Ls
     end
   end
 
-  def file_block_total(file)
+  def get_total(file)
     fs = File::Stat.new(file).blocks
     @total << fs
   end
 
-  def file_type(file)
-    case File.ftype(file)
-    when 'file'
-      @type = '-'
-    when 'directory'
-      @type = 'd'
-    when 'socket'
-      @type = 's'
-    when 'link'
-      @type = 'l'
-    end
+  def get_type(file)
+    @type = File.ftype(file)
+    @type = {
+      'file' => '-',
+      'directory' => 'd',
+      'link' => 'l',
+      'socket' => 's'
+    }[@type]
   end
 
-  def file_permission(file)
+  def get_permission(file)
     permission = File::Stat.new(file).mode.to_s(8).chars
-    permission_rwx = [permission[-3], permission[-2], permission[-1]]
-    integer_to_rwx = []
-    permission_rwx.each do |y|
-      case y
-      when '7'
-        integer_to_rwx.push('rwx')
-      when '6'
-        integer_to_rwx.push('rw-')
-      when '5'
-        integer_to_rwx.push('r-x')
-      when '4'
-        integer_to_rwx.push('r--')
-      when '3'
-        integer_to_rwx.push('-wx')
-      when '2'
-        integer_to_rwx.push('-w-')
-      when '1'
-        integer_to_rwx.push('--x')
-      when '0'
-        integer_to_rwx.push('---')
-      end
+    permission_integer = [permission[-3], permission[-2], permission[-1]]
+    permission_rwx = permission_integer.map do |y|
+      {
+        '7' => 'rwx',
+        '6' => 'rw-',
+        '5' => 'r-x',
+        '4' => 'r--',
+        '3' => '-wx',
+        '2' => '-w-',
+        '1' => '--x',
+        '0' => '---'
+      }[y]
     end
-    @permission_integer = integer_to_rwx.join
+    @permission_rwx = permission_rwx.join
   end
 
-  def file_hardlink(file)
+  def get_hardlink(file)
     @hardlink = File::Stat.new(file).nlink.to_s
   end
 
-  def file_user(file)
+  def get_user(file)
     @user = Etc.getpwuid(File.stat(file).uid).name
   end
 
-  def file_group(file)
+  def get_group(file)
     @group = Etc.getgrgid(File.stat(file).gid).name
   end
 
-  def file_size(file)
+  def get_size(file)
     @filesize = File.size(file).to_s
   end
 
-  def file_time(file)
+  def get_time(file)
     @timestamp = File.mtime(file).strftime('%m %d %H:%M')
   end
 
-  def space_adjustment
+  def adjust_space
     i = 0
     @hardlinks = []
     @users = []
@@ -157,7 +145,7 @@ end
 opt = ARGV.getopts('a', 'r', 'l')
 ls = Ls.new
 if opt['l']
-  ls.option_l
+  ls.run_option_l
 else
   ls.sort_directories
 end
