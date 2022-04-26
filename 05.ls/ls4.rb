@@ -41,45 +41,33 @@ class Ls
   end
 
   def run_option_l
-    @file_details = []
-    @total = []
+    total = []
 
-    @directories.each do |file|
-      get_total(file)
-      get_type(file)
-      get_permission(file)
-      get_hardlink(file)
-      get_user(file)
-      get_group(file)
-      get_size(file)
-      get_time(file)
-
-      file_detail = [@type, @permission_rwx, @hardlink, @user, @group, @filesize, @timestamp, file]
-      @file_details << file_detail
+    @directories.map! do |file|
+      total << get_blocks(file)
+      { type: get_type(file), permission: get_permission(file), hardlink: get_hardlink(file), user: get_user(file), group: get_group(file), size: get_size(file),
+        time: get_time(file), filename: file }
     end
 
-    adjust_space
+    puts "total #{total.sum}"
 
-    puts "total #{@total.sum}"
-
-    @file_details.each do |x|
-      puts "#{x[0]}#{x[1]} #{x[2].rjust(@max_hardlink)} #{x[3].rjust(@max_user)} #{x[4].rjust(@max_group)} #{x[5].rjust(@max_filesize)} #{x[6]} #{x[7]}"
+    @directories.each do |f|
+      puts "#{f[:type]}#{f[:permission]} #{f[:hardlink].rjust(calculate_space[0])} #{f[:user].rjust(calculate_space[1])} #{f[:group].rjust(calculate_space[2])} #{f[:size].rjust(calculate_space[3])} #{f[:time]} #{f[:filename]}"
     end
   end
 
-  def get_total(file)
-    fs = File::Stat.new(file).blocks
-    @total << fs
+  def get_blocks(file)
+    File::Stat.new(file).blocks
   end
 
   def get_type(file)
-    @type = File.ftype(file)
-    @type = {
+    type = File.ftype(file)
+    {
       'file' => '-',
       'directory' => 'd',
       'link' => 'l',
       'socket' => 's'
-    }[@type]
+    }[type]
   end
 
   def get_permission(file)
@@ -97,48 +85,43 @@ class Ls
         '0' => '---'
       }[y]
     end
-    @permission_rwx = permission_rwx.join
+    permission_rwx.join
   end
 
   def get_hardlink(file)
-    @hardlink = File::Stat.new(file).nlink.to_s
+    File::Stat.new(file).nlink.to_s
   end
 
   def get_user(file)
-    @user = Etc.getpwuid(File.stat(file).uid).name
+    Etc.getpwuid(File.stat(file).uid).name
   end
 
   def get_group(file)
-    @group = Etc.getgrgid(File.stat(file).gid).name
+    Etc.getgrgid(File.stat(file).gid).name
   end
 
   def get_size(file)
-    @filesize = File.size(file).to_s
+    File.size(file).to_s
   end
 
   def get_time(file)
-    @timestamp = File.mtime(file).strftime('%m %d %H:%M')
+    File.mtime(file).strftime('%m %d %H:%M')
   end
 
-  def adjust_space
-    i = 0
-    @hardlinks = []
-    @users = []
-    @groups = []
-    @filesizes = []
+  def calculate_space
+    hardlinks = []
+    users = []
+    groups = []
+    filesizes = []
 
-    until i == @file_details.length
-      @hardlinks << @file_details[i][2]
-      @users << @file_details[i][3]
-      @groups << @file_details[i][4]
-      @filesizes << @file_details[i][5]
-      i += 1
+    @directories.each do |directory|
+      hardlinks << directory[:hardlink]
+      users << directory[:user]
+      groups << directory[:group]
+      filesizes << directory[:size]
     end
 
-    @max_hardlink = @hardlinks.max_by(&:length).length
-    @max_user = @users.max_by(&:length).length
-    @max_group = @groups.max_by(&:length).length
-    @max_filesize = @filesizes.max_by(&:length).length
+    [hardlinks.max_by(&:length).length, users.max_by(&:length).length, groups.max_by(&:length).length, filesizes.max_by(&:length).length]
   end
 end
 
