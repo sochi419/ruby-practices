@@ -32,28 +32,52 @@ class Ls
   def sort_directories
     sorted_directories = divide_directories.transpose
     max_length = @directories.max_by(&:length).length
-    sorted_directories.each do |x|
-      x.each do |y|
-        print format("%-#{max_length + 1}s", y)
+    sorted_directories.each do |array|
+      array.each do |directory|
+        print format("%-#{max_length + 1}s", directory)
       end
       puts
     end
   end
 
   def run_option_l
+    puts "total #{total}"
+
+    convert_file_to_hash.each do |hash|
+      type = hash[:type]
+      permission = hash[:permission]
+      hardlink = hash[:hardlink].rjust(calculate_space[0])
+      user = hash[:user].rjust(calculate_space[1])
+      group = hash[:group].rjust(calculate_space[2])
+      size = hash[:size].rjust(calculate_space[3])
+      time = hash[:time]
+      filename = hash[:filename]
+
+      puts "#{type}#{permission} #{hardlink} #{user} #{group} #{size} #{time} #{filename}"
+    end
+  end
+
+  def convert_file_to_hash
+    @directories.map do |file|
+      {
+        type: get_type(file),
+        permission: get_permission(file),
+        hardlink: get_hardlink(file),
+        user: get_user(file),
+        group: get_group(file),
+        size: get_size(file),
+        time: get_time(file),
+        filename: file
+      }
+    end
+  end
+
+  def total
     total = []
-
-    @directories.map! do |file|
+    @directories.map do |file|
       total << get_blocks(file)
-      { type: get_type(file), permission: get_permission(file), hardlink: get_hardlink(file), user: get_user(file), group: get_group(file), size: get_size(file),
-        time: get_time(file), filename: file }
     end
-
-    puts "total #{total.sum}"
-
-    @directories.each do |f|
-      puts "#{f[:type]}#{f[:permission]} #{f[:hardlink].rjust(calculate_space[0])} #{f[:user].rjust(calculate_space[1])} #{f[:group].rjust(calculate_space[2])} #{f[:size].rjust(calculate_space[3])} #{f[:time]} #{f[:filename]}"
-    end
+    total.sum
   end
 
   def get_blocks(file)
@@ -73,7 +97,7 @@ class Ls
   def get_permission(file)
     permission = File::Stat.new(file).mode.to_s(8).chars
     permission_integer = [permission[-3], permission[-2], permission[-1]]
-    permission_rwx = permission_integer.map do |y|
+    permission_rwx = permission_integer.map do |number|
       {
         '7' => 'rwx',
         '6' => 'rw-',
@@ -83,7 +107,7 @@ class Ls
         '2' => '-w-',
         '1' => '--x',
         '0' => '---'
-      }[y]
+      }[number]
     end
     permission_rwx.join
   end
@@ -114,14 +138,21 @@ class Ls
     groups = []
     filesizes = []
 
-    @directories.each do |directory|
-      hardlinks << directory[:hardlink]
-      users << directory[:user]
-      groups << directory[:group]
-      filesizes << directory[:size]
+    convert_file_to_hash.each do |hash|
+      hardlinks << hash[:hardlink]
+      users << hash[:user]
+      groups << hash[:group]
+      filesizes << hash[:size]
     end
 
-    [hardlinks.max_by(&:length).length, users.max_by(&:length).length, groups.max_by(&:length).length, filesizes.max_by(&:length).length]
+    max_lengths = {
+      hardlink_max: hardlinks.max_by(&:length).length,
+      user_max: users.max_by(&:length).length,
+      group_max: groups.max_by(&:length).length,
+      filesize_max: filesizes.max_by(&:length).length
+    }
+
+    [max_lengths[:hardlink_max], max_lengths[:user_max], max_lengths[:group_max], max_lengths[:filesize_max]]
   end
 end
 
