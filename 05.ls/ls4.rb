@@ -1,4 +1,4 @@
-# frozen_string_literal:true
+# frozen_string_literal: true
 
 require 'optparse'
 require 'etc'
@@ -16,17 +16,17 @@ def main
           end
 
   if opt['l']
-    calculate_blocks(files)
+    output_blocks_total(files)
 
     files.each do |file|
-      run_option_l(file)
+      output_option_l(file, files)
     end
   else
-    output(files)
+    output_except_option_l(files)
   end
 end
 
-def divided_directories(files)
+def divide_directories(files)
   if (files.size % COLUMN).zero?
     divided_directories = files.each_slice(files.size / COLUMN).to_a
   else
@@ -40,10 +40,10 @@ def divided_directories(files)
 end
 
 def sort_directories(files)
-  divided_directories(files).transpose
+  divide_directories(files).transpose
 end
 
-def output(files)
+def output_except_option_l(files)
   max_length = files.max_by(&:length).length
   sort_directories(files).each do |sort_directory|
     sort_directory.each do |directory|
@@ -53,8 +53,8 @@ def output(files)
   end
 end
 
-def run_option_l(file)
-  max_length = calculate_max
+def output_option_l(file, files)
+  max_length = calculate_max_length(files)
 
   type = get_type(file)
   permission = get_permission(file)
@@ -68,13 +68,13 @@ def run_option_l(file)
   puts "#{type}#{permission} #{hardlink} #{user} #{group} #{size} #{time} #{filename}"
 end
 
-def calculate_max
+def calculate_max_length(files)
   hardlinks = []
   users = []
   groups = []
   filesizes = []
 
-  Dir.glob('*').each do |file|
+  files.each do |file|
     hardlinks << get_hardlink(file)
     users << get_user(file)
     groups << get_group(file)
@@ -89,7 +89,7 @@ def calculate_max
   }
 end
 
-def calculate_blocks(files)
+def output_blocks_total(files)
   total = []
   files.map do |file|
     total << get_file_info(file).blocks
@@ -150,3 +150,5 @@ def get_time(file)
 end
 
 main
+
+
