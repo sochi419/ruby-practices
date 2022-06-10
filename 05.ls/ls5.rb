@@ -5,7 +5,10 @@ require 'etc'
 
 COLUMN = 3
 
-def main(opt, files)
+def main
+  opt = ARGV.getopts('a', 'r', 'l')
+  files = get_files(opt)
+
   if opt['l']
     output_blocks_total(files)
 
@@ -14,6 +17,18 @@ def main(opt, files)
     end
   else
     output_except_option_l(files)
+  end
+end
+
+def get_files(opt)
+  if opt['a'] && opt['r']
+    Dir.glob('*', File::FNM_DOTMATCH).reverse
+  elsif opt['a']
+    Dir.glob('*', File::FNM_DOTMATCH)
+  elsif opt['r']
+    Dir.glob('*').reverse
+  else
+    Dir.glob('*')
   end
 end
 
@@ -140,14 +155,4 @@ def get_time(file)
   File.mtime(file).strftime('%m %d %H:%M')
 end
 
-opt = ARGV.getopts('a', 'r', 'l')
-files = if opt['a'] && opt['r']
-          Dir.glob('*', File::FNM_DOTMATCH).reverse
-        elsif opt['a']
-          Dir.glob('*', File::FNM_DOTMATCH)
-        elsif opt['r']
-          Dir.glob('*').reverse
-        else
-          Dir.glob('*')
-        end
-main(opt, files)
+main
