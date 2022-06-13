@@ -7,7 +7,13 @@ COLUMN = 3
 
 def main
   opt = ARGV.getopts('a', 'r', 'l')
-  files = get_files(opt)
+  files = if opt['a']
+            Dir.glob('*', File::FNM_DOTMATCH)
+          else
+            Dir.glob('*')
+          end
+
+  files = files.reverse if opt['r']
 
   if opt['l']
     output_blocks_total(files)
@@ -17,18 +23,6 @@ def main
     end
   else
     output_except_option_l(files)
-  end
-end
-
-def get_files(opt)
-  if opt['a'] && opt['r']
-    Dir.glob('*', File::FNM_DOTMATCH).reverse
-  elsif opt['a']
-    Dir.glob('*', File::FNM_DOTMATCH)
-  elsif opt['r']
-    Dir.glob('*').reverse
-  else
-    Dir.glob('*')
   end
 end
 
