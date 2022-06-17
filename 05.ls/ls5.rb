@@ -7,40 +7,10 @@ COLUMN = 3
 
 def main
   opt = ARGV.getopts('a', 'r', 'l')
-  files = if opt['a']
-            Dir.glob('*', File::FNM_DOTMATCH)
-          else
-            Dir.glob('*')
-          end
-
+  files = opt['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
   files = files.reverse if opt['r']
 
-  if opt['l']
-    output_blocks_total(files)
-
-    files.each do |file|
-      output_option_l(file, files)
-    end
-  else
-    output_except_option_l(files)
-  end
-end
-
-def divide_directories(files)
-  if (files.size % COLUMN).zero?
-    divided_directories = files.each_slice(files.size / COLUMN).to_a
-  else
-    divided_directories = files.each_slice(files.size / COLUMN + 1).to_a
-    until divided_directories.first.size == divided_directories.last.size
-      # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを代入する。
-      divided_directories.last << nil
-    end
-  end
-  divided_directories
-end
-
-def sort_directories(files)
-  divide_directories(files).transpose
+  opt['l'] ? output_option_l(files) : output_except_option_l(files)
 end
 
 def output_except_option_l(files)
@@ -53,19 +23,47 @@ def output_except_option_l(files)
   end
 end
 
-def output_option_l(file, files)
+def sort_directories(files)
+  divide_directories(files).transpose
+end
+
+def divide_directories(files)
+  if (files.size % COLUMN).zero?
+    divided_directories = files.each_slice(files.size / COLUMN).to_a
+  else
+    divided_directories = files.each_slice(files.size / COLUMN + 1).to_a
+    until divided_directories.first.size == divided_directories.last.size
+      # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
+      divided_directories.last << nil
+    end
+  end
+  divided_directories
+end
+
+def output_option_l(files)
+  output_blocks_total(files)
   max_length = calculate_max_length(files)
 
-  type = get_type(file)
-  permission = get_permission(file)
-  hardlink = get_hardlink(file).rjust(max_length[:hardlink])
-  user = get_user(file).rjust(max_length[:user])
-  group = get_group(file).rjust(max_length[:group])
-  size = get_size(file).rjust(max_length[:filesize])
-  time = get_time(file)
-  filename = file
+  files.each do |file|
+    type = get_type(file)
+    permission = get_permission(file)
+    hardlink = get_hardlink(file).rjust(max_length[:hardlink])
+    user = get_user(file).rjust(max_length[:user])
+    group = get_group(file).rjust(max_length[:group])
+    size = get_size(file).rjust(max_length[:filesize])
+    time = get_time(file)
+    filename = file
 
-  puts "#{type}#{permission} #{hardlink} #{user} #{group} #{size} #{time} #{filename}"
+    puts "#{type}#{permission} #{hardlink} #{user} #{group} #{size} #{time} #{filename}"
+  end
+end
+
+def output_blocks_total(files)
+  total = []
+  files.map do |file|
+    total << get_file_info(file).blocks
+  end
+  puts "total #{total.sum}"
 end
 
 def calculate_max_length(files)
@@ -87,14 +85,6 @@ def calculate_max_length(files)
     group: groups.max_by(&:length).length,
     filesize: filesizes.max_by(&:length).length
   }
-end
-
-def output_blocks_total(files)
-  total = []
-  files.map do |file|
-    total << get_file_info(file).blocks
-  end
-  puts "total #{total.sum}"
 end
 
 def get_file_info(file)
