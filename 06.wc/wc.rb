@@ -25,18 +25,18 @@ end
 
 def output_stdin(opt, inputs, word_number, bytesize)
   if (opt['l'] == false && opt['w'] == false && opt['c'] == false) || (opt['l'] == true && opt['w'] == true && opt['c'] == true)
-    p inputs.size # 行数
-    p word_number # 単語数
-    p bytesize # バイト数
+    print inputs.size.to_s.rjust(8, ' ') # 行数
+    print word_number.to_s.rjust(8, ' ') # 単語数
+    print bytesize.to_s.rjust(8, ' ') # バイト数
   else
-    output_stdin_option(opt, inputs, bytesize)
+    output_stdin_option(opt, inputs, word_number, bytesize)
   end
 end
 
-def output_stdin_option(opt, inputs, bytesize)
-  p inputs.size if opt['l'] == true
-  p inputs.size if opt['w'] == true
-  p bytesize if opt['c'] == true
+def output_stdin_option(opt, inputs, word_number, bytesize)
+  print inputs.size.to_s.rjust(8, ' ') if opt['l'] == true
+  print word_number.to_s.rjust(8, ' ') if opt['w'] == true
+  print bytesize.to_s.rjust(8, ' ') if opt['c'] == true
 end
 
 # コマンドに引数が与えられた場合。
@@ -46,21 +46,26 @@ def use_argv(opt)
   n = 0
 
   until n == (ARGV.size) # コマンドライン引数の数だけ、ループをさせる。
-    output_argv(opt, ARGV[n], lines_words_bytes)
-    puts output_argv(opt, ARGV[n], lines_words_bytes)
+    output_argv(opt, ARGV[n], lines_words_bytes).each do |output|
+      print output.to_s.rjust(8, ' ')
+    end
 
     total_lines_words_bytes << output_argv(opt, ARGV[n], lines_words_bytes) # 次行のtransposeメソッドを使うために、二重配列にした。
-    total = total_lines_words_bytes.transpose.map(&:sum)
-    puts lines_words_bytes
+    totals = total_lines_words_bytes.transpose.map(&:sum)
 
-    puts ARGV[n]
+    print(' ')
+    print ARGV[n].to_s.ljust(count_max_word(ARGV), ' ')
+    puts
     n += 1
   end
 
   return if ARGV[1].nil? # 引数が2つ以上の場合は、total値を表示する。
 
-  puts total
-  puts 'total'
+  totals.each do |total|
+    print total.to_s.rjust(8, ' ')
+  end
+  print(' ')
+  print 'total'.ljust(count_max_word(ARGV), ' ')
 end
 
 def output_argv(opt, argument, _output)
@@ -92,6 +97,11 @@ end
 
 def count_byte(file)
   File.size(file)
+end
+
+def count_max_word(files)
+  word_lengths = files.map(&:length)
+  word_lengths.max
 end
 
 main
