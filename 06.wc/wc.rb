@@ -4,86 +4,87 @@ require 'optparse'
 
 def main
   opt = ARGV.getopts('l', 'w', 'c')
-  if ARGV.size.zero?
-    use_stdin(opt) # コマンドに引数が与えられなかった場合。
+
+  if ARGV.empty?
+    datas = build_data_for_stdin
+    output_stdin(opt, datas)
   else
-    use_argv(opt) # コマンドに引数が与えられた場合。
+    ARGV.each do |file|
+      datas = build_data_for_argv(opt, file)
+      output_argv(opt, datas, file)
+    end
+    output_total(opt, ARGV)
   end
 end
 
-# コマンドに引数が与えられなかった場合。
-def use_stdin(opt)
+def build_data_for_stdin
   inputs = $stdin.readlines
-  word_number = 0
+  word_count = 0
   bytesize = 0
   inputs.each do |input|
-    word_number += input.split(' ').size # 単語数を計算
-    bytesize += input.bytesize # バイト数を計算
+    word_count += input.split(/\s+/).size
+    bytesize += input.bytesize
   end
-  output_stdin(opt, inputs, word_number, bytesize)
+  [inputs.size, word_count, bytesize]
 end
 
-def output_stdin(opt, inputs, word_number, bytesize)
-  if (opt['l'] == false && opt['w'] == false && opt['c'] == false) || (opt['l'] == true && opt['w'] == true && opt['c'] == true)
-    print inputs.size.to_s.rjust(8, ' ') # 行数
-    print word_number.to_s.rjust(8, ' ') # 単語数
-    print bytesize.to_s.rjust(8, ' ') # バイト数
-  else
-    output_stdin_option(opt, inputs, word_number, bytesize)
-  end
-end
-
-def output_stdin_option(opt, inputs, word_number, bytesize)
-  print inputs.size.to_s.rjust(8, ' ') if opt['l'] == true
-  print word_number.to_s.rjust(8, ' ') if opt['w'] == true
-  print bytesize.to_s.rjust(8, ' ') if opt['c'] == true
-end
-
-# コマンドに引数が与えられた場合。
-def use_argv(opt)
-  lines_words_bytes = []
-  total_lines_words_bytes = []
-  n = 0
-
-  until n == (ARGV.size) # コマンドライン引数の数だけ、ループをさせる。
-    output_argv(opt, ARGV[n], lines_words_bytes).each do |output|
-      print output.to_s.rjust(8, ' ')
+def output_stdin(opt, datas)
+  if !opt['l'] && !opt['w'] && !opt['c']
+    datas.each do |data|
+      output(data)
     end
+  end
+  output(datas[0]) if opt['l']
+  output(datas[1]) if opt['w']
+  output(datas[2]) if opt['c']
+end
 
-    total_lines_words_bytes << output_argv(opt, ARGV[n], lines_words_bytes) # 次行のtransposeメソッドを使うために、二重配列にした。
-    totals = total_lines_words_bytes.transpose.map(&:sum)
+def output(result)
+  print result.to_s.rjust(8, ' ')
+end
 
-    print(' ')
-    print ARGV[n].to_s.ljust(count_max_word(ARGV), ' ')
-    puts
-    n += 1
+def build_data_for_argv(opt, argument)
+  str = File.read(argument)
+  output = if !opt['l'] && !opt['w'] && !opt['c']
+             [count_line(str), count_words(str), count_byte(argument)]
+           else
+             []
+           end
+
+  output << count_line(str) if opt['l']
+  output << count_words(str) if opt['w']
+  output << count_byte(argument) if opt['c']
+
+  output
+end
+
+def output_argv(_opt, datas, file)
+  datas.each do |data|
+    output(data)
   end
 
-  return if ARGV[1].nil? # 引数が2つ以上の場合は、total値を表示する。
+  print(' ')
+  print file
+  puts
+end
 
-  totals.each do |total|
-    print total.to_s.rjust(8, ' ')
+def build_data_for_total(opt, files)
+  total_lines_words_bytes = []
+
+  files.each do |file|
+    total_lines_words_bytes << build_data_for_argv(opt, file) # 後述のtransposeメソッドを使うために、二重配列にした。
+  end
+  total_lines_words_bytes.transpose.map(&:sum)
+end
+
+def output_total(opt, files)
+  return if files[1].nil?
+
+  build_data_for_total(opt, ARGV).each do |total|
+    output(total)
   end
   print(' ')
-  print 'total'.ljust(count_max_word(ARGV), ' ')
-end
-
-def output_argv(opt, argument, _output)
-  str = File.read(argument)
-
-  if (opt['l'] == false && opt['w'] == false && opt['c'] == false) || (opt['l'] == true && opt['w'] == true && opt['c'] == true)
-    [count_line(str), count_words(str), count_byte(argument)]
-  else
-    output_argv_option(opt, str, argument)
-  end
-end
-
-def output_argv_option(opt, str, argument)
-  output = []
-  output << count_line(str) if opt['l'] == true
-  output << count_words(str) if opt['w'] == true
-  output << count_byte(argument) if opt['c'] == true
-  output
+  print 'total'
 end
 
 def count_line(file)
@@ -91,17 +92,11 @@ def count_line(file)
 end
 
 def count_words(file)
-  ary = file.split(/\s+/)
-  ary.size
+  file.split(/\s+/).size
 end
 
 def count_byte(file)
   File.size(file)
-end
-
-def count_max_word(files)
-  word_lengths = files.map(&:length)
-  word_lengths.max
 end
 
 main
