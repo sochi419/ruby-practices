@@ -37,6 +37,7 @@ def output_stdin(opt, datas)
   output(datas[0]) if opt['l']
   output(datas[1]) if opt['w']
   output(datas[2]) if opt['c']
+  puts
 end
 
 def output(result)
@@ -85,6 +86,7 @@ def output_total(opt, files)
   end
   print(' ')
   print 'total'
+  puts
 end
 
 def count_line(file)
