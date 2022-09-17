@@ -6,86 +6,73 @@ def main
   opt = ARGV.getopts('l', 'w', 'c')
 
   if ARGV.empty?
-    datas = build_data_for_stdin
-    output_stdin(opt, datas)
+    data_stdin = build_data_for_stdin
+    output(opt, data_stdin, nil, nil)
   else
     ARGV.each do |file|
-      datas = build_data_for_argv(opt, file)
-      output_argv(opt, datas, file)
+      data_argv = build_data_for_argv(file)
+      output(opt, data_argv, file, nil)
     end
-    output_total(opt, ARGV)
+    data_total = build_data_for_total(ARGV)
+    output(opt, data_total, nil, ARGV.size) if ARGV.size > 1
   end
 end
 
 def build_data_for_stdin
   inputs = $stdin.readlines
-  word_count = 0
-  bytesize = 0
-  inputs.each do |input|
-    word_count += input.split(/\s+/).size
-    bytesize += input.bytesize
-  end
-  [inputs.size, word_count, bytesize]
+
+  { line: count_line(inputs.join), word: count_words(inputs.join), byte: count_byte(inputs.join) }
 end
 
-def output_stdin(opt, datas)
-  if !opt['l'] && !opt['w'] && !opt['c']
-    datas.each do |data|
-      output(data)
-    end
-  end
-  output(datas[0]) if opt['l']
-  output(datas[1]) if opt['w']
-  output(datas[2]) if opt['c']
-  puts
+def build_data_for_argv(file)
+  str = File.read(file)
+
+  { line: count_line(str), word: count_words(str), byte: count_byte(str) }
 end
 
-def output(result)
-  print result.to_s.rjust(8, ' ')
-end
-
-def build_data_for_argv(opt, argument)
-  str = File.read(argument)
-  output = if !opt['l'] && !opt['w'] && !opt['c']
-             [count_line(str), count_words(str), count_byte(argument)]
-           else
-             []
-           end
-
-  output << count_line(str) if opt['l']
-  output << count_words(str) if opt['w']
-  output << count_byte(argument) if opt['c']
-
-  output
-end
-
-def output_argv(_opt, datas, file)
-  datas.each do |data|
-    output(data)
-  end
-
-  print(' ')
-  print file
-  puts
-end
-
-def build_data_for_total(opt, files)
-  total_lines_words_bytes = []
+def build_data_for_total(files)
+  count_line_total = 0
+  count_word_total = 0
+  count_byte_total = 0
 
   files.each do |file|
-    total_lines_words_bytes << build_data_for_argv(opt, file) # 後述のtransposeメソッドを使うために、二重配列にした。
+    str = File.read(file)
+    count_line_total += count_line(str)
+    count_word_total += count_words(str)
+    count_byte_total += count_byte(str)
   end
-  total_lines_words_bytes.transpose.map(&:sum)
+  { line: count_line_total, word: count_word_total, byte: count_byte_total }
 end
 
-def output_total(opt, files)
-  return if files[1].nil?
+def output(opt, data, file, total_number_of_argv)
+  output_calculate_result(data, opt)
+  output_filename_or_total(file, total_number_of_argv)
+end
 
-  build_data_for_total(opt, ARGV).each do |total|
-    output(total)
+def output_calculate_result(data, opt)
+  if !opt['l'] && !opt['w'] && !opt['c']
+    print data[:line].to_s.rjust(8, ' ')
+    print data[:word].to_s.rjust(8, ' ')
+    print data[:byte].to_s.rjust(8, ' ')
+  else
+    print data[:line].to_s.rjust(8, ' ') if opt['l']
+    print data[:word].to_s.rjust(8, ' ') if opt['w']
+    print data[:byte].to_s.rjust(8, ' ') if opt['c']
   end
-  print(' ')
-  print 'total'
+end
+
+def output_filename_or_total(file, total_number_of_argv)
+  if ARGV.empty?
+    puts
+    return
+  elsif total_number_of_argv == ARGV.size
+    print(' ')
+    print 'total'
+  else
+    print(' ')
+    print file
+  end
+
   puts
 end
 
@@ -98,7 +85,7 @@ def count_words(file)
 end
 
 def count_byte(file)
-  File.size(file)
+  file.bytesize
 end
 
 main
