@@ -10,9 +10,10 @@ def main
   else
     total = { line: 0, word: 0, byte: 0, file: 'total' }
     ARGV.each do |file|
-      total[:line] += build_data_for_file(file)[:line].to_i
-      total[:word] += build_data_for_file(file)[:word].to_i
-      total[:byte] += build_data_for_file(file)[:byte].to_i
+      calculate_result = build_data_for_file(file)
+      total[:line] += calculate_result[:line]
+      total[:word] += calculate_result[:word]
+      total[:byte] += calculate_result[:byte]
       output(build_data_for_file(file), options)
     end
     output(total, options) if ARGV.size > 1
@@ -20,26 +21,26 @@ def main
 end
 
 def build_data_for_stdin
-  inputs = $stdin.readlines.join
-  get_calculate_result(inputs, '')
+  combined_filename = $stdin.readlines.join
+  build_data_for_text(combined_filename, '')
 end
 
 def build_data_for_file(file)
   str = File.read(file)
-  get_calculate_result(str, file)
+  build_data_for_text(str, file)
 end
 
-def get_calculate_result(str, file)
+def build_data_for_text(str, file)
   { line: count_line(str), word: count_words(str), byte: count_byte(str), file: file }
 end
 
 def output(data, option)
-  print adjust_space(data[:line]) if option['l'] || lack_option(option)
-  print adjust_space(data[:word]) if option['w'] || lack_option(option)
-  print adjust_space(data[:byte]) if option['c'] || lack_option(option)
+  no_option = lack_option(option)
+  print adjust_space(data[:line]) if option['l'] || no_option
+  print adjust_space(data[:word]) if option['w'] || no_option
+  print adjust_space(data[:byte]) if option['c'] || no_option
 
-  print(' ')
-  print data[:file]
+  print " #{data[:file]}"
   puts
 end
 
