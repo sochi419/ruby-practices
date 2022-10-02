@@ -36,7 +36,7 @@ def build_data_for_text(str, file)
 end
 
 def output(data, option)
-  no_option = (option == { 'l' => false, 'w' => false, 'c' => false })
+  no_option = option.values.none?
   print adjust_space(data[:line]) if option['l'] || no_option
   print adjust_space(data[:word]) if option['w'] || no_option
   print adjust_space(data[:byte]) if option['c'] || no_option
