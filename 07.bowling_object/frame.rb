@@ -24,25 +24,45 @@ class Frame
       each_frame[9].delete(0)
     end
 
-    calculate_strike_or_spare(each_frame)
+    calculate_each_frame_score(each_frame)
   end
 
-  def calculate_strike_or_spare(each_frame_shots)
+  def calculate_each_frame_score(each_frame_shots)
     each_frame_shots.map.with_index do |shot, i|
       sum = shot[0] + shot[1] + shot[2].to_i
-      if each_frame_shots[i + 1].nil? # 最終フレーム
+      if last_frame?(each_frame_shots, i)
         sum
-      elsif shot[0] == 10 && each_frame_shots[i + 1][0] == 10 && each_frame_shots[i + 2].nil? # 第9フレームストライク且つ第10フレームもストライク
-        sum + each_frame_shots[i + 1][0] + each_frame[i + 1][1]
-      elsif shot[0] == 10 && each_frame_shots[i + 1][0] == 10 # 第8フレームまででストライク且つ次フレームもストライク
-        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 2][0]
-      elsif shot[0] == 10 # ストライク
+      elsif calculate_double_strike_after_nine_frame(each_frame_shots, shot, i) # 第9フレームでストライク且つ第10フレームもストライク
         sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 1][1]
-      elsif sum == 10 # スペア
+      elsif calculate_double_strike_until_eight_frame(each_frame_shots, shot, i) # 第8フレームまででストライク且つ次フレームもストライク
+        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 2][0]
+      elsif strike?(shot)
+        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 1][1]
+      elsif spare?(sum)
         sum + each_frame_shots[i + 1][0]
-      else # ストライクでもスペアでもないとき
+      else
         sum
       end
     end
+  end
+
+  def last_frame?(each_frame_shots, index)
+    each_frame_shots[index + 1].nil?
+  end
+
+  def calculate_double_strike_after_nine_frame(each_frame_shots, shot, index)
+    shot[0] == 10 && each_frame_shots[index + 1][0] == 10 && each_frame_shots[index + 2].nil?
+  end
+
+  def calculate_double_strike_until_eight_frame(each_frame_shots, shot, index)
+    shot[0] == 10 && each_frame_shots[index + 1][0] == 10
+  end
+
+  def strike?(shot)
+    shot[0] == 10
+  end
+
+  def spare?(sum)
+    sum == 10
   end
 end
