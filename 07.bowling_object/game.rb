@@ -3,13 +3,15 @@
 require './frame'
 
 class Game
-  attr_reader :scores
+  attr_reader :frames
 
   def initialize(all_shot)
-    @scores = all_shot
+    @frames = build_frames(all_shot).map do |frame|
+      Frame.new(frame[0], frame[1], frame[2].to_i)
+    end
   end
 
-  def score
+  def build_frames(scores)
     shots = []
     scores.each do |s|
       shots << Shot.new(s).score
@@ -23,24 +25,23 @@ class Game
       each_frame.slice!(10, 11)
       each_frame[9].delete(0)
     end
-
-    calculate_each_frame_score(each_frame)
+    each_frame
   end
 
-  def calculate_each_frame_score(each_frame_shots)
-    each_frame_scores = each_frame_shots.map.with_index do |shot, i|
-      frame = Frame.new(shot[0], shot[1], shot[2].to_i)
-      sum = frame.score
-      if last_frame?(each_frame_shots, i)
+  def score
+    calculate_each_frame_score(frames)
+  end
+
+  def calculate_each_frame_score(frames)
+    each_frame_scores = frames.map.with_index do |shot, i|
+      sum = shot.score
+
+      if last_frame?(frames, i)
         sum
-      elsif calculate_double_strike_after_nine_frame(each_frame_shots, shot, i) # 第9フレームでストライク且つ第10フレームもストライク
-        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 1][1]
-      elsif calculate_double_strike_until_eight_frame(each_frame_shots, shot, i) # 第8フレームまででストライク且つ次フレームもストライク
-        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 2][0]
-      elsif frame.strike?
-        sum + each_frame_shots[i + 1][0] + each_frame_shots[i + 1][1]
-      elsif frame.spare?
-        sum + each_frame_shots[i + 1][0]
+      elsif shot.strike?
+        sum + shot.point_of_strike(frames, i)
+      elsif shot.spare?
+        sum + shot.point_of_spare(frames, i)
       else
         sum
       end
@@ -48,15 +49,7 @@ class Game
     each_frame_scores.sum
   end
 
-  def last_frame?(each_frame_shots, index)
-    each_frame_shots[index + 1].nil?
-  end
-
-  def calculate_double_strike_after_nine_frame(each_frame_shots, shot, index)
-    shot[0] == 10 && each_frame_shots[index + 1][0] == 10 && each_frame_shots[index + 2].nil?
-  end
-
-  def calculate_double_strike_until_eight_frame(each_frame_shots, shot, index)
-    shot[0] == 10 && each_frame_shots[index + 1][0] == 10
+  def last_frame?(frames, index)
+    frames[index + 1].nil?
   end
 end

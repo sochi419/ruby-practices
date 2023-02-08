@@ -20,4 +20,18 @@ class Frame
   def spare?
     score == 10
   end
+
+  def point_of_strike(frames, index)
+    if frames[index + 1].strike? && frames[index + 2].nil?
+      frames[index + 1].first_shot.score + frames[index + 1].second_shot.score
+    elsif frames[index + 1].strike?
+      frames[index + 1].first_shot.score + frames[index + 2].first_shot.score
+    else
+      frames[index + 1].score
+    end
+  end
+
+  def point_of_spare(frames, index)
+    frames[index + 1].first_shot.score
+  end
 end
