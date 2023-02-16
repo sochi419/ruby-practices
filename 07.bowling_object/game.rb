@@ -7,7 +7,7 @@ class Game
 
   def initialize(all_shot)
     @frames = build_frames(all_shot).map do |frame|
-      Frame.new(frame[0], frame[1], frame[2].to_i)
+      Frame.new(frame[0], frame[1], frame[2])
     end
   end
 
@@ -36,12 +36,12 @@ class Game
     each_frame_scores = frames.map.with_index do |shot, i|
       sum = shot.score
 
-      if last_frame?(frames, i)
+      if last_frame?(frames[i + 1], i)
         sum
       elsif shot.strike?
-        sum + shot.point_of_strike(frames, i)
+        sum + shot.point_of_strike(frames[i + 1], frames[i + 2], i)
       elsif shot.spare?
-        sum + shot.point_of_spare(frames, i)
+        sum + shot.point_of_spare(frames[i + 1], i)
       else
         sum
       end
@@ -49,7 +49,7 @@ class Game
     each_frame_scores.sum
   end
 
-  def last_frame?(frames, index)
-    frames[index + 1].nil?
+  def last_frame?(next_frame, index)
+    next_frame.nil?
   end
 end

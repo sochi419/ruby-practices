@@ -21,17 +21,17 @@ class Frame
     score == 10
   end
 
-  def point_of_strike(frames, index)
-    if frames[index + 1].strike? && frames[index + 2].nil?
-      frames[index + 1].first_shot.score + frames[index + 1].second_shot.score
-    elsif frames[index + 1].strike?
-      frames[index + 1].first_shot.score + frames[index + 2].first_shot.score
+  def point_of_strike(next_frame, next_next_fame, index)
+    if next_frame.strike? && next_next_fame.nil?
+      next_frame.first_shot.score + next_frame.second_shot.score
+    elsif next_frame.strike?
+      next_frame.first_shot.score + next_next_fame.first_shot.score
     else
-      frames[index + 1].score
+      next_frame.score
     end
   end
 
-  def point_of_spare(frames, index)
-    frames[index + 1].first_shot.score
+  def point_of_spare(next_frame, index)
+    next_frame.first_shot.score
   end
 end
