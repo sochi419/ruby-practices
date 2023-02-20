@@ -1,16 +1,11 @@
 # frozen_string_literal: true
 
-# filesを与えれば、中身の配置を整えるクラス
-
-class DirectoriesSort
-  attr_reader :option
-
+class FileAlign
   def initialize(files)
     @files = files
   end
 
-  def sort_directories(files)
-    column = 3
+  def align_directories(files, column)
     if (files.size % column).zero?
       divided_directories = files.each_slice(files.size / column).to_a
     else
@@ -23,10 +18,3 @@ class DirectoriesSort
     divided_directories.transpose
   end
 end
-
-#   files = ["file_read.rb", "free.rb", "free2.rb", "free2.tb", "ls5.rb", "ls_a.rb", "ls_l.rb", "ls_r.rb"]
-# a = Directories_sort.new(files)
-# # p a.sort_directories(files)
-
-# transposeなし → [["file_read.rb", "free.rb", "free2.rb"], ["free2.tb", "ls5.rb", "ls_a.rb"], ["ls_l.rb", "ls_r.rb", nil]]
-# transposeあり → [["file_read.rb", "free2.tb", "ls_l.rb"], ["free.rb", "ls5.rb", "ls_r.rb"], ["free2.rb", "ls_a.rb", nil]]

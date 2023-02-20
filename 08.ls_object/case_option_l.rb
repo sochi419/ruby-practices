@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# filesを与えれば、file一覧を返してくれるクラス
-
 require 'etc'
 
 class OptionL

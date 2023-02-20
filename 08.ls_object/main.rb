@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 
-require './file_read'
-require './except_l'
-require './directories_sort'
-require './option_l'
+require './file_arrayization'
+require './case_except_option_l'
+require './align_file'
+require './case_option_l'
 
-opt = ARGV.getopts('a', 'r', 'l')
-options = File_read.new(opt)
-files = options.make_files_in_array(options.option)
+option = ARGV.getopts('a', 'r', 'l')
+files = FileArrayization.new(option).insert_files_in_array(option)
 
-if opt['l']
-  d = OptionL.new(files)
-  d.output_file(files)
+COLUMN = 3
+
+if option['l']
+  OptionL.new(files).output_file(files)
 else
   max_length = files.max_by(&:length).length
-  sorted_dir = DirectoriesSort.new(files).sort_directories(files)
-  ExceptOptionL.new(sorted_dir).output_file(sorted_dir, max_length)
+  CaseExceptOptionL.new.output_file(FileAlign.new(files).align_directories(files, COLUMN), max_length)
 end
