@@ -2,7 +2,7 @@
 
 require 'etc'
 
-class OptionL
+class CaseOptionL
   attr_reader :files
 
   def initialize(files)
@@ -26,6 +26,8 @@ class OptionL
       puts "#{type}#{permission} #{hardlink} #{user} #{group} #{size} #{time} #{filename}"
     end
   end
+
+  private
 
   def get_file_info(file)
     File.stat(file)
