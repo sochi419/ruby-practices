@@ -5,10 +5,6 @@ require 'etc'
 class CaseOptionL
   attr_reader :files
 
-  def initialize(files)
-    @files = files
-  end
-
   def output_file(files)
     output_blocks_total(files)
     max_length = calculate_max_length(files)
