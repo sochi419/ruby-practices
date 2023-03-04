@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 
-require 'optparse'
+class ArrangingOrder
+  attr_reader :files, :column
 
-class Files
-  attr_reader :option
-
-  def put_files_in_array(option)
-    files = option['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
-    files = files.reverse if option['r']
-
-    files
+  def initialize(files, column)
+    @files = files
+    @column = column
   end
 
-  def sort_files(files, column)
+  def sort_files
     if (files.size % column).zero?
       divided_directories = files.each_slice(files.size / column).to_a
     else
