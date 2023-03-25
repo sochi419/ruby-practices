@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './arranging_order'
+require './reorder'
 require './case_except_option_l'
 require './case_option_l'
 require 'optparse'
