@@ -15,7 +15,7 @@ class CaseOptionL
 
     @files.each do |file|
       file_info = FileInfo.new(file)
-      max_length = calculate_max_length(file, file_info)
+      max_length = calculate_max_length(file_info)
       print file_info.type(file)
       print "#{file_info.permission(file)}  "
       print "#{file_info.hardlink(file).to_s.rjust(max_length[:hardlink])} "
@@ -38,24 +38,12 @@ class CaseOptionL
     puts "total #{total.sum}"
   end
 
-  def calculate_max_length(_file, file_info)
-    hardlinks = []
-    users = []
-    groups = []
-    filesizes = []
-
-    files.each do |file|
-      hardlinks << file_info.hardlink(file).to_s
-      users << file_info.user(file)
-      groups << file_info.group(file)
-      filesizes << file_info.size(file).to_s
-    end
-
+  def calculate_max_length(file_info)
     {
-      hardlink: hardlinks.max_by(&:length).length,
-      user: users.max_by(&:length).length,
-      group: groups.max_by(&:length).length,
-      filesize: filesizes.max_by(&:length).length
+      hardlink: files.map { |file| file_info.hardlink(file).to_s.length }.max,
+      user: files.map { |file| file_info.user(file).length }.max,
+      group: files.map { |file| file_info.group(file).length }.max,
+      filesize: files.map { |file| file_info.size(file).to_s.length }.max
     }
   end
 
