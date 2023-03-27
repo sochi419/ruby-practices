@@ -18,7 +18,7 @@ class FileInfo
     }[type]
   end
 
-  def permission(file)
+  def permission
     permission = @file_stat.mode.to_s(8).chars
     permission_integer = [permission[-3], permission[-2], permission[-1]]
     permission_rwx = permission_integer.map do |number|
@@ -36,15 +36,15 @@ class FileInfo
     permission_rwx.join
   end
 
-  def hardlink(file)
+  def hardlink
     @file_stat.nlink
   end
 
-  def user(file)
+  def user
     Etc.getpwuid(@file_stat.uid).name
   end
 
-  def group(file)
+  def group
     Etc.getgrgid(@file_stat.gid).name
   end
 
@@ -54,5 +54,9 @@ class FileInfo
 
   def time(file)
     File.mtime(file).strftime('%m %d %H:%M')
+  end
+
+  def block
+    @file_stat.blocks
   end
 end
