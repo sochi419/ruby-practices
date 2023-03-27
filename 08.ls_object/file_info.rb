@@ -3,12 +3,9 @@
 class FileInfo
   attr_reader :file_name
 
-  def initialize(_file)
+  def initialize(file)
     @file = file_name
-  end
-
-  def file_info(file)
-    File.stat(file)
+    @file_stat = File.stat(file)
   end
 
   def type(file)
@@ -22,7 +19,7 @@ class FileInfo
   end
 
   def permission(file)
-    permission = file_info(file).mode.to_s(8).chars
+    permission = @file_stat.mode.to_s(8).chars
     permission_integer = [permission[-3], permission[-2], permission[-1]]
     permission_rwx = permission_integer.map do |number|
       {
@@ -40,15 +37,15 @@ class FileInfo
   end
 
   def hardlink(file)
-    file_info(file).nlink
+    @file_stat.nlink
   end
 
   def user(file)
-    Etc.getpwuid(file_info(file).uid).name
+    Etc.getpwuid(@file_stat.uid).name
   end
 
   def group(file)
-    Etc.getgrgid(file_info(file).gid).name
+    Etc.getgrgid(@file_stat.gid).name
   end
 
   def size(file)
