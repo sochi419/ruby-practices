@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CaseExceptOptionL
+class ShortFormatter
   attr_reader :files, :column
 
   def initialize(files, column)

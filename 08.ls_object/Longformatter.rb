@@ -3,7 +3,7 @@
 require 'etc'
 require './file_info'
 
-class CaseOptionL
+class LongFormatter
   attr_reader :files
 
   def initialize(files)
