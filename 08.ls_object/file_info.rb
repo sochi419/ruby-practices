@@ -40,7 +40,7 @@ class FileInfo
   end
 
   def hardlink(file)
-    file_info(file).nlink.to_s
+    file_info(file).nlink
   end
 
   def user(file)
@@ -52,7 +52,7 @@ class FileInfo
   end
 
   def size(file)
-    File.size(file).to_s
+    File.size(file)
   end
 
   def time(file)
