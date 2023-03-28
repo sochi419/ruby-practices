@@ -11,30 +11,32 @@ class LongFormatter
   end
 
   def output_file
-    output_blocks_total
+    ls_files = files.map do |ls_file|
+      FileInfo.new(ls_file)
+    end
 
-    files.each do |file|
-      file_info = FileInfo.new(file)
-      max_length = calculate_max_length(file_info)
-      print file_info.type(file)
-      print "#{file_info.permission}  "
-      print "#{file_info.hardlink.to_s.rjust(max_length[:hardlink])} "
-      print "#{file_info.user.rjust(max_length[:user])}  "
-      print "#{file_info.group.rjust(max_length[:group])}  "
-      print "#{file_info.size(file).to_s.rjust(max_length[:filesize])}  "
-      print "#{file_info.time(file)} "
-      print file
+    output_blocks_total(ls_files)
+
+    ls_files.each do |ls_file|
+      file_name = ls_file.name
+      max_length = calculate_max_length(ls_file)
+
+      print ls_file.type(file_name)
+      print "#{ls_file.permission}  "
+      print "#{ls_file.hardlink.to_s.rjust(max_length[:hardlink])} "
+      print "#{ls_file.user.rjust(max_length[:user])}  "
+      print "#{ls_file.group.rjust(max_length[:group])}  "
+      print "#{ls_file.size(file_name).to_s.rjust(max_length[:filesize])}  "
+      print "#{ls_file.time(file_name)} "
+      print file_name
       print "\n"
     end
   end
 
   private
 
-  def output_blocks_total
-    blocks = files.sum do |file|
-      file_info = FileInfo.new(file)
-      file_info.block
-    end
+  def output_blocks_total(ls_files)
+    blocks = ls_files.sum(&:block)
     puts "total #{blocks}"
   end
 

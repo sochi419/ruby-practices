@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 class FileInfo
-  attr_reader :file_name
+  attr_reader :file
 
   def initialize(file)
-    @file = file_name
+    @file = file
     @file_stat = File.stat(file)
+  end
+
+  def name
+    @file
   end
 
   def type(file)
