@@ -24,14 +24,11 @@ end
 private
 
 def sort_files(files, column)
-  if (files.size % column).zero?
-    divided_directories = files.each_slice(files.size / column).to_a
-  else
-    divided_directories = files.each_slice(files.size / column + 1).to_a
-    until divided_directories.first.size == divided_directories.last.size
-      # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
-      divided_directories.last << nil
-    end
+  divided_directories = files.each_slice((files.size.to_f / column).ceil).to_a
+  until divided_directories.first.size == divided_directories.last.size
+    # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
+    divided_directories.last << nil
   end
+
   divided_directories.transpose
 end
