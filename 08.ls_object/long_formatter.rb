@@ -17,9 +17,10 @@ class LongFormatter
 
     output_blocks_total(ls_files)
 
+    max_length = calculate_max_length(ls_files)
+
     ls_files.each do |ls_file|
       file_name = ls_file.name
-      max_length = calculate_max_length(ls_file)
 
       print ls_file.type(file_name)
       print "#{ls_file.permission}  "
@@ -40,12 +41,12 @@ class LongFormatter
     puts "total #{blocks}"
   end
 
-  def calculate_max_length(file_info)
+  def calculate_max_length(ls_files)
     {
-      hardlink: files.map { |_file| file_info.hardlink.to_s.length }.max,
-      user: files.map { |_file| file_info.user.length }.max,
-      group: files.map { |_file| file_info.group.length }.max,
-      filesize: files.map { |file| file_info.size(file).to_s.length }.max
+      hardlink: ls_files.map { |ls_file| ls_file.hardlink.to_s.length }.max,
+      user: ls_files.map { |ls_file| ls_file.user.length }.max,
+      group: ls_files.map { |ls_file| ls_file.group.length }.max,
+      filesize: ls_files.map { |ls_file| ls_file.size(ls_file.name).to_s.length }.max
     }
   end
 end
