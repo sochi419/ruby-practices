@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 
 class FileInfo
+  FILE_TYPE = {
+    'file' => '-',
+    'directory' => 'd',
+    'link' => 'l',
+    'socket' => 's'
+  }.freeze
+
+  FILE_PERMISSION = {
+    '7' => 'rwx',
+    '6' => 'rw-',
+    '5' => 'r-x',
+    '4' => 'r--',
+    '3' => '-wx',
+    '2' => '-w-',
+    '1' => '--x',
+    '0' => '---'
+  }.freeze
+
   attr_reader :file
 
   def initialize(file)
@@ -14,28 +32,14 @@ class FileInfo
 
   def type(file)
     type = File.ftype(file)
-    {
-      'file' => '-',
-      'directory' => 'd',
-      'link' => 'l',
-      'socket' => 's'
-    }[type]
+    FILE_TYPE[type]
   end
 
   def permission
     permission = @file_stat.mode.to_s(8).chars
     permission_integer = [permission[-3], permission[-2], permission[-1]]
     permission_rwx = permission_integer.map do |number|
-      {
-        '7' => 'rwx',
-        '6' => 'rw-',
-        '5' => 'r-x',
-        '4' => 'r--',
-        '3' => '-wx',
-        '2' => '-w-',
-        '1' => '--x',
-        '0' => '---'
-      }[number]
+      FILE_PERMISSION[number]
     end
     permission_rwx.join
   end
