@@ -12,9 +12,9 @@ class ShortFormatter
   def output_file
     max_length = files.max_by(&:length).length
 
-    sort_files(files, COLUMN).each do |sort_directory|
-      sort_directory.each do |directory|
-        print format("%-#{max_length + 1}s", directory)
+    sort_files(files, COLUMN).each do |lines|
+      lines.each do |file|
+        print format("%-#{max_length + 1}s", file)
       end
       puts
     end
