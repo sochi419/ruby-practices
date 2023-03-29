@@ -19,16 +19,16 @@ class ShortFormatter
       puts
     end
   end
-end
 
-private
+  private
 
-def sort_files(files, column)
-  divided_directories = files.each_slice((files.size.to_f / column).ceil).to_a
-  until divided_directories.first.size == divided_directories.last.size
-    # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
-    divided_directories.last << nil
+  def sort_files(files, column)
+    divided_directories = files.each_slice((files.size.to_f / column).ceil).to_a
+    until divided_directories.first.size == divided_directories.last.size
+      # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
+      divided_directories.last << nil
+    end
+
+    divided_directories.transpose
   end
-
-  divided_directories.transpose
 end
