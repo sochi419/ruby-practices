@@ -19,8 +19,6 @@ class FileInfo
     '0' => '---'
   }.freeze
 
-  attr_reader :file
-
   def initialize(file)
     @file = file
     @file_stat = File.stat(file)
@@ -30,9 +28,8 @@ class FileInfo
     @file
   end
 
-  def type(file)
-    type = File.ftype(file)
-    FILE_TYPE[type]
+  def type
+    FILE_TYPE[@file_stat.ftype]
   end
 
   def permission
@@ -56,12 +53,12 @@ class FileInfo
     Etc.getgrgid(@file_stat.gid).name
   end
 
-  def size(file)
-    File.size(file)
+  def size
+    @file_stat.size
   end
 
-  def time(file)
-    File.mtime(file)
+  def time
+    @file_stat.mtime
   end
 
   def block
