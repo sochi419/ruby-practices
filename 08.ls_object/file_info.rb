@@ -61,7 +61,7 @@ class FileInfo
   end
 
   def time(file)
-    File.mtime(file).strftime('%m %d %H:%M')
+    File.mtime(file)
   end
 
   def block
