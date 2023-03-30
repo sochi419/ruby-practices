@@ -10,7 +10,7 @@ class ShortFormatter
   def output_file
     max_length = @files.max_by(&:length).length
 
-    divide_files_by_column(@files, COLUMN).each do |files|
+    split_files_by_column(@files, COLUMN).each do |files|
       files.each do |file|
         print format("%-#{max_length + 1}s", file)
       end
@@ -20,12 +20,12 @@ class ShortFormatter
 
   private
 
-  def divide_files_by_column(files, column)
-    number_of_directory_division = (files.size.to_f / column).ceil
-    divided_directories = files.each_slice(number_of_directory_division).to_a
+  def split_files_by_column(files, column_count)
+    row_count = (files.size.to_f / column_count).ceil
+    divided_directories = files.each_slice(row_count).to_a
 
-    difference_number_of_elements = divided_directories.first.size - divided_directories.last.size
-    difference_number_of_elements.times do
+    diff_count = divided_directories.first.size - divided_directories.last.size
+    diff_count.times do
       # 後述するtransposeメソッドを使うために、要素数が不足している配列に、nilを末尾に追加する。
       divided_directories.last << nil
     end
