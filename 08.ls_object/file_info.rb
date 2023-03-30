@@ -20,12 +20,12 @@ class FileInfo
   }.freeze
 
   def initialize(file)
-    @file = file
+    @file_name = file
     @file_stat = File.stat(file)
   end
 
-  def name
-    @file
+  def filename
+    @file_name
   end
 
   def type
