@@ -19,10 +19,10 @@ class FileInfo
     '0' => '---'
   }.freeze
 
-  attr_reader :file_name
+  attr_reader :file
 
   def initialize(file)
-    @file_name = file
+    @file = file
     @file_stat = File.stat(file)
   end
 

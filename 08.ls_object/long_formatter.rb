@@ -23,7 +23,7 @@ class LongFormatter
       print "#{file_info.group.rjust(max_length[:group])}  "
       print "#{file_info.size.to_s.rjust(max_length[:filesize])}  "
       print "#{file_info.time.strftime('%m %d %H:%M')} "
-      print file_info.file_name
+      print file_info.file
       print "\n"
     end
   end
