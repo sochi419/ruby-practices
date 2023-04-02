@@ -32,10 +32,7 @@ class FileInfo
 
   def permission
     file_permissions = @file_stat.mode.to_s(8).chars
-    permission_rwx = file_permissions[-3..-1].map do |number|
-      FILE_PERMISSION[number]
-    end
-    permission_rwx.join
+    file_permissions[-3..-1].map { |number| FILE_PERMISSION[number] }.join
   end
 
   def hardlink
