@@ -10,7 +10,7 @@ class ShortFormatter
   def output_file
     max_length = @files.max_by(&:length).length
 
-    split_files_by_column(@files, COLUMN).each do |files|
+    split_files_by_column.each do |files|
       files.each do |file|
         print format("%-#{max_length + 1}s", file)
       end
@@ -20,9 +20,9 @@ class ShortFormatter
 
   private
 
-  def split_files_by_column(files, column_count)
-    row_count = (files.size.to_f / column_count).ceil
-    divided_directories = files.each_slice(row_count).to_a
+  def split_files_by_column
+    row_count = (@files.size.to_f / COLUMN).ceil
+    divided_directories = @files.each_slice(row_count).to_a
 
     diff_count = divided_directories.first.size - divided_directories.last.size
     diff_count.times do

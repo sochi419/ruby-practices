@@ -12,8 +12,8 @@ class LongFormatter
   end
 
   def output_file
-    output_blocks_total(@file_infos)
-    max_length = calculate_max_length(@file_infos)
+    output_blocks_total
+    max_length = calculate_max_length
 
     @file_infos.each do |file_info|
       print file_info.type
@@ -30,17 +30,17 @@ class LongFormatter
 
   private
 
-  def output_blocks_total(file_infos)
-    blocks = file_infos.sum(&:block)
+  def output_blocks_total
+    blocks = @file_infos.sum(&:block)
     puts "total #{blocks}"
   end
 
-  def calculate_max_length(file_infos)
+  def calculate_max_length
     {
-      hardlink: file_infos.map { |file_info| file_info.hardlink.to_s.length }.max,
-      user: file_infos.map { |file_info| file_info.user.length }.max,
-      group: file_infos.map { |file_info| file_info.group.length }.max,
-      filesize: file_infos.map { |file_info| file_info.size.to_s.length }.max
+      hardlink: @file_infos.map { |file_info| file_info.hardlink.to_s.length }.max,
+      user: @file_infos.map { |file_info| file_info.user.length }.max,
+      group: @file_infos.map { |file_info| file_info.group.length }.max,
+      filesize: @file_infos.map { |file_info| file_info.size.to_s.length }.max
     }
   end
 end
