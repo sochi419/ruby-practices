@@ -32,8 +32,7 @@ class FileInfo
 
   def permission
     file_permissions = @file_stat.mode.to_s(8).chars
-    permission_integer = [file_permissions[-3], file_permissions[-2], file_permissions[-1]]
-    permission_rwx = permission_integer.map do |number|
+    permission_rwx = file_permissions[-3..-1].map do |number|
       FILE_PERMISSION[number]
     end
     permission_rwx.join
