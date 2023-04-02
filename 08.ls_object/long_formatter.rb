@@ -4,6 +4,7 @@ require 'etc'
 require './file_info'
 
 class LongFormatter
+
   def initialize(files)
     @file_infos = files.map do |file|
       FileInfo.new(file)
@@ -22,7 +23,7 @@ class LongFormatter
       print "#{file_info.group.rjust(max_length[:group])}  "
       print "#{file_info.size.to_s.rjust(max_length[:filesize])}  "
       print "#{file_info.time.strftime('%m %d %H:%M')} "
-      print file_info.filename
+      print file_info.file_name
       print "\n"
     end
   end
