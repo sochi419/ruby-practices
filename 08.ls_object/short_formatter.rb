@@ -7,7 +7,7 @@ class ShortFormatter
     @files = files
   end
 
-  def output_file
+  def output
     max_length = @files.max_by(&:length).length
 
     split_files_by_column.each do |files|

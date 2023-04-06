@@ -4,14 +4,13 @@ require 'etc'
 require './file_info'
 
 class LongFormatter
-
   def initialize(files)
     @file_infos = files.map do |file|
       FileInfo.new(file)
     end
   end
 
-  def output_file
+  def output
     output_blocks_total
     max_length = calculate_max_length
 
